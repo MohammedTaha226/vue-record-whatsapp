@@ -1,3 +1,193 @@
+<template>
+  <div class="ar">
+    <div class="ar__overlay" v-if="isUploading"></div>
+    <div class="ar-spinner" v-if="isUploading">
+      <div class="ar-spinner__dot"></div>
+      <div class="ar-spinner__dot"></div>
+      <div class="ar-spinner__dot"></div>
+    </div>
+
+    <div class="ar-content" :class="{'ar__blur': isUploading}">
+      <div class="ar-recorder">
+        <icon-button
+          class="ar-icon ar-icon__lg"
+          :name="iconButtonType"
+          :class="{
+            'ar-icon--rec': isRecording,
+            'ar-icon--pulse': isRecording && volume > 0.02
+          }"
+          @click.native="toggleRecorder"/>
+        <icon-button
+          class="ar-icon ar-icon__sm ar-recorder__stop"
+          name="stop"
+          @click.native="stopRecorder"/>
+      </div>
+
+      <div class="ar-recorder__records-limit" v-if="attempts">Attempts: {{attemptsLeft}}/{{attempts}}</div>
+      <div class="ar-recorder__duration">{{recordedTime}}</div>
+      <div class="ar-recorder__time-limit" v-if="time">Record duration is limited: {{time}}m</div>
+
+    <!---  <div class="ar-records">
+        <div
+          class="ar-records__record"
+          :class="{'ar-records__record--selected': record.id === selected.id}"
+          :key="record.id"
+          v-for="(record, idx) in recordList"
+          @click="choiceRecord(record)">
+            <div
+              class="ar__rm"
+              v-if="record.id === selected.id"
+              @click="removeRecord(idx)">&times;</div>
+            <div class="ar__text">Record {{idx + 1}}</div>
+            <div class="ar__text">{{record.duration}}</div>
+
+            <downloader
+              v-if="record.id === selected.id && showDownloadButton"
+              class="ar__downloader"
+              :record="record"
+              :filename="filename"/>
+
+            <uploader
+              v-if="record.id === selected.id && showUploadButton"
+              class="ar__uploader"
+              :record="record"
+              :filename="filename"
+              :headers="headers"
+              :upload-url="uploadUrl"/>
+        </div>
+      </div>
+
+      <audio-player :record="selected"/>-->
+    </div>
+  </div>
+</template>
+
+<script>
+  import Downloader  from './downloader'
+  import IconButton  from './icon-button'
+  import Recorder    from '@/lib/recorder'
+  import Uploader    from './uploader'
+  import UploaderPropsMixin from '@/mixins/uploader-props'
+  import { convertTimeMMSS }  from '@/lib/utils'
+
+  export default {
+    mixins: [UploaderPropsMixin],
+    props: {
+      attempts : { type: Number },
+      time     : { type: Number },
+
+      showDownloadButton : { type: Boolean, default: true },
+      showUploadButton   : { type: Boolean, default: true },
+
+      micFailed        : { type: Function },
+      beforeRecording  : { type: Function },
+      pauseRecording   : { type: Function },
+      afterRecording   : { type: Function },
+      failedUpload     : { type: Function },
+      beforeUpload     : { type: Function },
+      successfulUpload : { type: Function },
+      selectRecord     : { type: Function }
+    },
+    data () {
+      return {
+        isUploading   : false,
+        recorder      : this._initRecorder(),
+        recordList    : [],
+        selected      : {},
+        uploadStatus  : null,
+      }
+    },
+    components: {
+      Downloader,
+      IconButton,
+      Uploader
+    },
+    mounted () {
+      this.$eventBus.$on('start-upload', () => {
+        this.isUploading = true
+        this.beforeUpload && this.beforeUpload('before upload')
+      })
+
+      this.$eventBus.$on('end-upload', (msg) => {
+        this.isUploading = false
+
+        if (msg.status === 'success') {
+          this.successfulUpload && this.successfulUpload(msg.response)
+        } else {
+          this.failedUpload && this.failedUpload(msg.response)
+        }
+      })
+    },
+    beforeDestroy () {
+      this.stopRecorder()
+    },
+    methods: {
+      toggleRecorder () {
+        if (this.attempts && this.recorder.records.length >= this.attempts) {
+          return
+        }
+
+        if (!this.isRecording || (this.isRecording && this.isPause)) {
+          this.recorder.start()
+        } else {
+          this.recorder.pause()
+        }
+      },
+      stopRecorder () {
+        if (!this.isRecording) {
+          return
+        }
+
+        this.recorder.stop()
+        this.recordList = this.recorder.recordList()
+      },
+      removeRecord (idx) {
+        this.recordList.splice(idx, 1)
+        this.$set(this.selected, 'url', null)
+        this.$eventBus.$emit('remove-record')
+      },
+      choiceRecord (record) {
+        if (this.selected === record) {
+          return
+        }
+        this.selected = record
+        this.selectRecord && this.selectRecord(record)
+      },
+      _initRecorder () {
+        return new Recorder({
+          beforeRecording : this.beforeRecording,
+          afterRecording  : this.afterRecording,
+          pauseRecording  : this.pauseRecording,
+          micFailed       : this.micFailed
+        })
+      }
+    },
+    computed: {
+      attemptsLeft () {
+        return this.attempts - this.recordList.length
+      },
+      iconButtonType () {
+        return this.isRecording && this.isPause ? 'mic' : this.isRecording ? 'pause' : 'mic'
+      },
+      isPause () {
+        return this.recorder.isPause
+      },
+      isRecording () {
+        return this.recorder.isRecording
+      },
+      recordedTime () {
+        if (this.time && this.recorder.duration >= this.time * 60) {
+          this.stopRecorder()
+        }
+        return convertTimeMMSS(this.recorder.duration)
+      },
+      volume () {
+        return parseFloat(this.recorder.volume)
+      }
+    }
+  }
+</script>
+
 <style lang="scss">
   .ar {
     width: 420px;
@@ -180,196 +370,3 @@
 
   @import '../scss/icons';
 </style>
-
-<template>
-  <div class="ar">
-    <div class="ar__overlay" v-if="isUploading"></div>
-    <div class="ar-spinner" v-if="isUploading">
-      <div class="ar-spinner__dot"></div>
-      <div class="ar-spinner__dot"></div>
-      <div class="ar-spinner__dot"></div>
-    </div>
-
-    <div class="ar-content" :class="{'ar__blur': isUploading}">
-      <div class="ar-recorder">
-        <icon-button
-          class="ar-icon ar-icon__lg"
-          :name="iconButtonType"
-          :class="{
-            'ar-icon--rec': isRecording,
-            'ar-icon--pulse': isRecording && volume > 0.02
-          }"
-          @click.native="toggleRecorder"/>
-        <icon-button
-          class="ar-icon ar-icon__sm ar-recorder__stop"
-          name="stop"
-          @click.native="stopRecorder"/>
-      </div>
-
-      <div class="ar-recorder__records-limit" v-if="attempts">Attempts: {{attemptsLeft}}/{{attempts}}</div>
-      <div class="ar-recorder__duration">{{recordedTime}}</div>
-      <div class="ar-recorder__time-limit" v-if="time">Record duration is limited: {{time}}m</div>
-
-    <!---  <div class="ar-records">
-        <div
-          class="ar-records__record"
-          :class="{'ar-records__record--selected': record.id === selected.id}"
-          :key="record.id"
-          v-for="(record, idx) in recordList"
-          @click="choiceRecord(record)">
-            <div
-              class="ar__rm"
-              v-if="record.id === selected.id"
-              @click="removeRecord(idx)">&times;</div>
-            <div class="ar__text">Record {{idx + 1}}</div>
-            <div class="ar__text">{{record.duration}}</div>
-
-            <downloader
-              v-if="record.id === selected.id && showDownloadButton"
-              class="ar__downloader"
-              :record="record"
-              :filename="filename"/>
-
-            <uploader
-              v-if="record.id === selected.id && showUploadButton"
-              class="ar__uploader"
-              :record="record"
-              :filename="filename"
-              :headers="headers"
-              :upload-url="uploadUrl"/>
-        </div>
-      </div>
-
-      <audio-player :record="selected"/>-->
-    </div>
-  </div>
-</template>
-
-<script>
-  import AudioPlayer from './player'
-  import Downloader  from './downloader'
-  import IconButton  from './icon-button'
-  import Recorder    from '@/lib/recorder'
-  import Uploader    from './uploader'
-  import UploaderPropsMixin from '@/mixins/uploader-props'
-  import { convertTimeMMSS }  from '@/lib/utils'
-
-  export default {
-    mixins: [UploaderPropsMixin],
-    props: {
-      attempts : { type: Number },
-      time     : { type: Number },
-
-      showDownloadButton : { type: Boolean, default: true },
-      showUploadButton   : { type: Boolean, default: true },
-
-      micFailed        : { type: Function },
-      beforeRecording  : { type: Function },
-      pauseRecording   : { type: Function },
-      afterRecording   : { type: Function },
-      failedUpload     : { type: Function },
-      beforeUpload     : { type: Function },
-      successfulUpload : { type: Function },
-      selectRecord     : { type: Function }
-    },
-    data () {
-      return {
-        isUploading   : false,
-        recorder      : this._initRecorder(),
-        recordList    : [],
-        selected      : {},
-        uploadStatus  : null,
-      }
-    },
-    components: {
-      AudioPlayer,
-      Downloader,
-      IconButton,
-      Uploader
-    },
-    mounted () {
-      this.$eventBus.$on('start-upload', () => {
-        this.isUploading = true
-        this.beforeUpload && this.beforeUpload('before upload')
-      })
-
-      this.$eventBus.$on('end-upload', (msg) => {
-        this.isUploading = false
-
-        if (msg.status === 'success') {
-          this.successfulUpload && this.successfulUpload(msg.response)
-        } else {
-          this.failedUpload && this.failedUpload(msg.response)
-        }
-      })
-    },
-    beforeDestroy () {
-      this.stopRecorder()
-    },
-    methods: {
-      toggleRecorder () {
-        if (this.attempts && this.recorder.records.length >= this.attempts) {
-          return
-        }
-
-        if (!this.isRecording || (this.isRecording && this.isPause)) {
-          this.recorder.start()
-        } else {
-          this.recorder.pause()
-        }
-      },
-      stopRecorder () {
-        if (!this.isRecording) {
-          return
-        }
-
-        this.recorder.stop()
-        this.recordList = this.recorder.recordList()
-      },
-      removeRecord (idx) {
-        this.recordList.splice(idx, 1)
-        this.$set(this.selected, 'url', null)
-        this.$eventBus.$emit('remove-record')
-      },
-      choiceRecord (record) {
-        if (this.selected === record) {
-          return
-        }
-        this.selected = record
-        this.selectRecord && this.selectRecord(record)
-      },
-      _initRecorder () {
-        return new Recorder({
-          beforeRecording : this.beforeRecording,
-          afterRecording  : this.afterRecording,
-          pauseRecording  : this.pauseRecording,
-          micFailed       : this.micFailed
-        })
-      }
-    },
-    computed: {
-      attemptsLeft () {
-        return this.attempts - this.recordList.length
-      },
-      iconButtonType () {
-        return this.isRecording && this.isPause ? 'mic' : this.isRecording ? 'pause' : 'mic'
-      },
-      isPause () {
-        return this.recorder.isPause
-      },
-      isRecording () {
-        return this.recorder.isRecording
-      },
-      recordedTime () {
-        if (this.time && this.recorder.duration >= this.time * 60) {
-          this.stopRecorder()
-        }
-        return convertTimeMMSS(this.recorder.duration)
-      },
-      volume () {
-        return parseFloat(this.recorder.volume)
-      }
-    }
-  }
-</script>
-

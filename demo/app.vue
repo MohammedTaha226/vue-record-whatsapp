@@ -21,8 +21,6 @@
       :before-upload="callback"
       :successful-upload="callback"
       :failed-upload="callback"/>
-
-    <audio-player :src="mp3" v-if="!showRecorder"/>
   </div>
 </template>
 
@@ -31,7 +29,6 @@
     name: 'app',
     data () {
       return {
-        mp3: '/demo/example.mp3',
         showRecorder: true,
         headers: {
           'X-Custom-Header': 'some data'
