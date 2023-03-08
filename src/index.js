@@ -1,7 +1,7 @@
-import AudioRecorder from '@/components/recorder.vue'
+import vueRecordWhatsapp from '@/components/recorder.vue'
 
 const components = {
-  AudioRecorder,
+  vueRecordWhatsapp,
 
   install (Vue) {
     if (this.installed) {
@@ -11,10 +11,10 @@ const components = {
     this.installed = true
 
     Vue.prototype.$eventBus = Vue.prototype.$eventBus || new Vue
-    Vue.component('audio-record-whatsapp', AudioRecorder)
+    Vue.component('vue-record-whatsapp', vueRecordWhatsapp)
   }
 }
 
 export default components
 
-export { AudioRecorder }
+export { vueRecordWhatsapp }

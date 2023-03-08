@@ -2,7 +2,7 @@
   <div class="row">
     <button class="toggle" @click="toggle">TOGGLE</button>
     <div class="demoStyle">
-    <audio-record-whatsapp v-if="showRecorder"
+    <vue-record-whatsapp v-if="showRecorder"
       :time="2"
       :pause-recording="pauseRecording"
       :before-recording="beforeRecording"

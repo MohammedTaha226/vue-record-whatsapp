@@ -10,7 +10,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'vue-record-whatsapp.min.js',
-    library: 'VueAudioRecorder',
+    library: 'vueRecordWhatsapp',
     libraryTarget: 'umd',
     libraryExport: 'default',
     umdNamedDefine: true

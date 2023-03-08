@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import app from './app'
 
-import AudioRecorder from '@/index'
+import vueRecordWhatsapp from '@/index'
 
-Vue.use(AudioRecorder)
+Vue.use(vueRecordWhatsapp)
 
 new Vue({
   el: '#app',
