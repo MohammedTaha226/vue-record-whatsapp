@@ -1,19 +1,13 @@
-<style lang="scss">
-  .toggle {
-    cursor: pointer;
-    margin: 20px;
-  }
-</style>
-
 <template>
   <div class="row">
     <button class="toggle" @click="toggle">TOGGLE</button>
     <div class="demoStyle">
-    <audio-recorder v-if="showRecorder"
+    <audio-record-whatsapp v-if="showRecorder"
       :time="2"
-      :pause-recording="callback"
+      :pause-recording="pauseRecording"
       :before-recording="beforeRecording"
-      :after-recording="record"/>
+      :after-recording="afterRecording"
+      :send-record="sendRecord"/>
     </div>
   </div>
 </template>
@@ -27,14 +21,20 @@
       }
     },
     methods: {
-      record (record) {
-        console.log(record)
-      },
       toggle () {
         this.showRecorder = !this.showRecorder
       },
       beforeRecording() {
-        console.log('this method fired before recording..')
+        console.log('this method fired before recording')
+      },
+      pauseRecording() {
+        console.log('this method fired when record is pause')
+      },
+      afterRecording (record) {
+        console.log('this method fired when record is finished or removed')
+      },
+      sendRecord(record) {
+        console.log(record)
       }
     }
   }

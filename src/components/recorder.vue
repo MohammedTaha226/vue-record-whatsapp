@@ -24,7 +24,7 @@
           v-if="isRecording"
           class="record-icon send-icon"
           name="send"
-          @click.native="stopRecorder"/>
+          @click.native="send"/>
       </transition>
   </div>
 </template>
@@ -42,6 +42,7 @@
       beforeRecording  : { type: Function },
       pauseRecording   : { type: Function },
       afterRecording   : { type: Function },
+      sendRecord : { type: Function }
     },
     data () {
       return {
@@ -73,14 +74,20 @@
         if (!this.isRecording) {
           return
         }
-
         this.recorder.stop();
+      },
+      send() {
+        if (!this.isRecording) {
+          return
+        }
+        this.recorder.send();
       },
       _initRecorder () {
         return new Recorder({
           beforeRecording : this.beforeRecording,
           afterRecording  : this.afterRecording,
-          pauseRecording  : this.pauseRecording
+          pauseRecording  : this.pauseRecording,
+          sendRecord : this.sendRecord
         })
       }
     },

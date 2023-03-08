@@ -5,6 +5,7 @@ export default class {
     this.beforeRecording = options.beforeRecording
     this.pauseRecording  = options.pauseRecording
     this.afterRecording  = options.afterRecording
+    this.sendRecord      = options.sendRecord
     this.micFailed       = options.micFailed
     
     this.bufferSize = 4096
@@ -57,6 +58,26 @@ export default class {
     this.isRecording = false
 
     this.afterRecording && this.afterRecording(record)
+  }
+
+  send () {
+
+    this.stream.getTracks().forEach((track) => track.stop())
+    this.input.disconnect()
+    this.processor.disconnect()
+    this.context.close()
+
+    const record = this.lameEncoder.finish()
+    record.duration = convertTimeMMSS(this.duration)
+    this.record = record
+
+    this._duration = 0
+    this.duration  = 0
+
+    this.isPause     = false
+    this.isRecording = false
+
+    this.sendRecord && this.sendRecord(record)
   }
 
   pause () {
