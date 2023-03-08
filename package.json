@@ -1,7 +1,7 @@
 {
   "name": "vue-record-whatsapp",
-  "description": "Audio recorder whatsapp for Vue.js. It allows to create, play, download and store records on a server",
-  "version": "1.0.1",
+  "description": "Vue recorder whatsapp for Vue.js. It allows to create, play, download and store records on a server",
+  "version": "1.0.2",
   "author": "Mohammed Taha <mtelrazky@gmail.com>",
   "license": "MIT",
   "scripts": {
