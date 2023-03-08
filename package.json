@@ -9,7 +9,7 @@
     "build": "webpack --env.NODE_ENV=production --mode production --progress --hide-modules"
   },
   "dependencies": {
-    "lamejs": "^1.2.0"
+    "lamejs": "github:zhuker/lamejs"
   },
   "browserslist": [
     "> 1%",
@@ -44,9 +44,11 @@
   },
   "keywords": [
     "vue",
-    "audio",
     "record",
-    "microphone"
+    "recorder",
+    "whatsapp",
+    "microphone",
+    "voice"
   ],
   "bugs": {
     "url": "https://github.com/MohammedTaha226/vue-record-whatsapp/issues"

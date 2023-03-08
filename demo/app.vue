@@ -7,20 +7,14 @@
 
 <template>
   <div class="row">
-    <div class="toggle" @click="toggle">TOGGLE</div>
-
+    <button class="toggle" @click="toggle">TOGGLE</button>
+    <div class="demoStyle">
     <audio-recorder v-if="showRecorder"
-      upload-url="some url"
-      :attempts="3"
       :time="2"
-      :headers="headers"
-      :before-recording="callback"
       :pause-recording="callback"
-      :after-recording="callback"
-      :select-record="callback"
-      :before-upload="callback"
-      :successful-upload="callback"
-      :failed-upload="callback"/>
+      :before-recording="beforeRecording"
+      :after-recording="record"/>
+    </div>
   </div>
 </template>
 
@@ -29,19 +23,44 @@
     name: 'app',
     data () {
       return {
-        showRecorder: true,
-        headers: {
-          'X-Custom-Header': 'some data'
-        }
+        showRecorder: true
       }
     },
     methods: {
-      callback (msg) {
-        console.debug('Event: ', msg)
+      record (record) {
+        console.log(record)
       },
       toggle () {
         this.showRecorder = !this.showRecorder
+      },
+      beforeRecording() {
+        console.log('this method fired before recording..')
       }
     }
   }
 </script>
+<style scoped>
+.demoStyle
+{
+  border-radius:10px;
+  background-color:#f9f9f9;
+  padding:20px;
+  margin:30px auto 20px;
+  max-width:500px;
+  display: flex;
+  justify-content: center;
+}
+
+.toggle
+{
+  border-radius:30px;
+  border:none;
+  background-color:#f5f5f5;
+  font-weight:700;
+  width:200px;
+  height:50px;
+  margin:50px auto 0;
+  display:block;
+}
+
+</style>

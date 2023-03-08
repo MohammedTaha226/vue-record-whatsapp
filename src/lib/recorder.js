@@ -1,15 +1,14 @@
 import Encoder from './encoder'
 import { convertTimeMMSS } from './utils'
-
 export default class {
   constructor (options = {}) {
     this.beforeRecording = options.beforeRecording
     this.pauseRecording  = options.pauseRecording
     this.afterRecording  = options.afterRecording
     this.micFailed       = options.micFailed
-
+    
     this.bufferSize = 4096
-    this.records    = []
+    this.record = null
 
     this.isPause     = false
     this.isRecording = false
@@ -41,6 +40,7 @@ export default class {
   }
 
   stop () {
+
     this.stream.getTracks().forEach((track) => track.stop())
     this.input.disconnect()
     this.processor.disconnect()
@@ -48,7 +48,7 @@ export default class {
 
     const record = this.lameEncoder.finish()
     record.duration = convertTimeMMSS(this.duration)
-    this.records.push(record)
+    this.record = record
 
     this._duration = 0
     this.duration  = 0
@@ -70,15 +70,6 @@ export default class {
 
     this.pauseRecording && this.pauseRecording('pause recording')
   }
-
-  recordList () {
-    return this.records
-  }
-
-  lastRecord () {
-    return this.records.slice(-1)
-  }
-
   _micCaptured (stream) {
     this.context    = new(window.AudioContext || window.webkitAudioContext)()
     this.duration   = this._duration
