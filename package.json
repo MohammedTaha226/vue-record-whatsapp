@@ -1,5 +1,5 @@
 {
-  "name": "vue-audio-whatsapp",
+  "name": "vue-record-whatsapp",
   "description": "Audio recorder whatsapp for Vue.js. It allows to create, play, download and store records on a server",
   "version": "1.0.0",
   "author": "Mohammed Taha <mtelrazky@gmail.com>",
@@ -37,10 +37,10 @@
     "webpack-dev-server": "^3.1.9",
     "webpack-merge": "^4.1.3"
   },
-  "main": "dist/vue-audio-whatsapp.min.js",
+  "main": "dist/vue-record-whatsapp.min.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MohammedTaha226/vue-audio-whatsapp.git"
+    "url": "git+https://github.com/MohammedTaha226/vue-record-whatsapp.git"
   },
   "keywords": [
     "vue",
@@ -49,7 +49,7 @@
     "microphone"
   ],
   "bugs": {
-    "url": "https://github.com/MohammedTaha226/vue-audio-whatsapp/issues"
+    "url": "https://github.com/MohammedTaha226/vue-record-whatsapp/issues"
   },
-  "homepage": "https://github.com/MohammedTaha226/vue-audio-whatsapp#README.md"
+  "homepage": "https://github.com/MohammedTaha226/vue-record-whatsapp#README.md"
 }

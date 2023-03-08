@@ -27,51 +27,16 @@
       <div class="ar-recorder__duration">{{recordedTime}}</div>
       <div class="ar-recorder__time-limit" v-if="time">Record duration is limited: {{time}}m</div>
 
-    <!---  <div class="ar-records">
-        <div
-          class="ar-records__record"
-          :class="{'ar-records__record--selected': record.id === selected.id}"
-          :key="record.id"
-          v-for="(record, idx) in recordList"
-          @click="choiceRecord(record)">
-            <div
-              class="ar__rm"
-              v-if="record.id === selected.id"
-              @click="removeRecord(idx)">&times;</div>
-            <div class="ar__text">Record {{idx + 1}}</div>
-            <div class="ar__text">{{record.duration}}</div>
-
-            <downloader
-              v-if="record.id === selected.id && showDownloadButton"
-              class="ar__downloader"
-              :record="record"
-              :filename="filename"/>
-
-            <uploader
-              v-if="record.id === selected.id && showUploadButton"
-              class="ar__uploader"
-              :record="record"
-              :filename="filename"
-              :headers="headers"
-              :upload-url="uploadUrl"/>
-        </div>
-      </div>
-
-      <audio-player :record="selected"/>-->
     </div>
   </div>
 </template>
 
 <script>
-  import Downloader  from './downloader'
   import IconButton  from './icon-button'
   import Recorder    from '@/lib/recorder'
-  import Uploader    from './uploader'
-  import UploaderPropsMixin from '@/mixins/uploader-props'
   import { convertTimeMMSS }  from '@/lib/utils'
 
   export default {
-    mixins: [UploaderPropsMixin],
     props: {
       attempts : { type: Number },
       time     : { type: Number },
@@ -83,10 +48,6 @@
       beforeRecording  : { type: Function },
       pauseRecording   : { type: Function },
       afterRecording   : { type: Function },
-      failedUpload     : { type: Function },
-      beforeUpload     : { type: Function },
-      successfulUpload : { type: Function },
-      selectRecord     : { type: Function }
     },
     data () {
       return {
@@ -98,25 +59,11 @@
       }
     },
     components: {
-      Downloader,
-      IconButton,
-      Uploader
+      IconButton
+      
     },
     mounted () {
-      this.$eventBus.$on('start-upload', () => {
-        this.isUploading = true
-        this.beforeUpload && this.beforeUpload('before upload')
-      })
-
-      this.$eventBus.$on('end-upload', (msg) => {
-        this.isUploading = false
-
-        if (msg.status === 'success') {
-          this.successfulUpload && this.successfulUpload(msg.response)
-        } else {
-          this.failedUpload && this.failedUpload(msg.response)
-        }
-      })
+      
     },
     beforeDestroy () {
       this.stopRecorder()
@@ -145,13 +92,6 @@
         this.recordList.splice(idx, 1)
         this.$set(this.selected, 'url', null)
         this.$eventBus.$emit('remove-record')
-      },
-      choiceRecord (record) {
-        if (this.selected === record) {
-          return
-        }
-        this.selected = record
-        this.selectRecord && this.selectRecord(record)
       },
       _initRecorder () {
         return new Recorder({

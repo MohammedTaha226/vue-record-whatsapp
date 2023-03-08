@@ -1,1 +1,1 @@
-# vue-audio-whatsapp
+# vue-record-whatsapp
