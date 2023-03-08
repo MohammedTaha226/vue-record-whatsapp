@@ -2,7 +2,7 @@
 
 > Vue recorder whatsapp for Vue.js. It allows to create, send on a server.
 
-#### [Live demo](https://jsfiddle.net/grishkovelli/rb1anxyj/)
+#### [Live demo](https://codepen.io/MohammedTaha/pen/poOWQpr)
 
 ![](https://github.com/MohammedTaha226/vue-record-whatsapp/blob/main/screenshot.png)
 
