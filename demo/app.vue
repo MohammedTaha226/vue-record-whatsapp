@@ -8,6 +8,9 @@
       :before-recording="beforeRecording"
       :after-recording="afterRecording"
       :send-record="sendRecord"/>
+      <br>
+      <audio id="audio-preview" controls />
+
     </div>
   </div>
 </template>
@@ -17,7 +20,8 @@
     name: 'app',
     data () {
       return {
-        showRecorder: true
+        showRecorder: true,
+        record:null
       }
     },
     methods: {
@@ -34,7 +38,15 @@
         console.log('this method fired when record is finished or removed')
       },
       sendRecord(record) {
-        console.log(record)
+
+        let audio = document.getElementById('audio-preview');
+        let reader = new FileReader();
+
+        reader.readAsDataURL( record.blob );
+        reader.addEventListener('load', function(){
+            audio.src = reader.result;
+        });
+        
       }
     }
   }
